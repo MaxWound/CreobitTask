@@ -6,12 +6,13 @@ using UnityEngine.SceneManagement;
 public class AddonBoolean : MonoBehaviour
 {
     static private GameObject firstInstance = null;
-    public bool PlayWithAddon = true;
+    GameObject _manager;
     public static int Energy = 3;
     // Start is called before the first frame update
     void Start()
     {
-        if(firstInstance == null)
+        _manager = GameObject.Find("ManagerGameObject");
+        if (firstInstance == null)
         {
             firstInstance = gameObject;
         }
@@ -25,7 +26,10 @@ public class AddonBoolean : MonoBehaviour
 
     public void toogleAddon()
     {
-        PlayWithAddon = !PlayWithAddon;
+        if (_manager.GetComponent<AddonScript>() == null)
+        {
+            _manager.AddComponent<AddonScript>();
+        }
     }
     // Update is called once per frame
     void Update()

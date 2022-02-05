@@ -5,18 +5,34 @@ using UnityEngine.SceneManagement;
 
 public class ClickCubeToCircle : MonoBehaviour
 {
-    
-    GameObject ClickedSquare;
-    GameObject ClickedCircle;
-    GameObject ClickedTriangle;
-    
+    static private GameObject firstInstance = null;
+    public static GameObject ClickedFirst;
+    public static GameObject ClickedSecond;
+
+    private void Start()
+    {
+        DontDestroyOnLoad(gameObject);
+        if (firstInstance == null)
+        {
+            firstInstance = gameObject;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+        DontDestroyOnLoad(gameObject);
+
+    }
     // Start is called before the first frame update
     private void Update()
     {
-       if(Input.GetKeyDown(KeyCode.K))
+        ////////////
+        if (Input.GetKeyDown(KeyCode.K))
         {
-            SceneManager.LoadScene(2);
+            GetComponent<AddonScript>().SpawnTriangles();
         }
+        ////////////
+
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             Ray ray;
@@ -24,47 +40,47 @@ public class ClickCubeToCircle : MonoBehaviour
             RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction, Mathf.Infinity);
             if (hit.collider != null)
             {
-                if (hit.collider.gameObject.tag == "Square")
+                
+                if (ClickedFirst == null)
                 {
-                    ClickedSquare = hit.collider.gameObject;
+                    ClickedFirst = hit.collider.gameObject;
+
                 }
-                if (hit.collider.gameObject.tag == "Circle" && ClickedSquare != null)
+                else
                 {
-                    ClickedCircle = hit.collider.gameObject;
+                    ClickedSecond = hit.collider.gameObject;
                 }
-                if (hit.collider.gameObject.tag == "Triangle")
-                {
-                    ClickedTriangle = hit.collider.gameObject;
-                }
+
             }
+
             else
+            {
+                ClickedFirst = null;
+                ClickedSecond = null;
                 print(Input.mousePosition);
+            }
         }
 
 
-        if (ClickedSquare != null && ClickedTriangle != null && AddonBoolean.Energy >= 1)
-        {
-            Destroy(ClickedTriangle.gameObject);
-            ClickedSquare.transform.localScale /= 2;
-            AddonBoolean.Energy--;
-        }
-        if (ClickedSquare != null && ClickedCircle != null)
-        {
-            if (((ClickedCircle.transform.localScale.x + ClickedCircle.transform.localScale.y) / (ClickedSquare.transform.localScale.x + ClickedSquare.transform.localScale.y)) >= 1.4f)
-            {
-                ClickedSquare.transform.position = ClickedCircle.transform.position;
-                ClickedCircle = null;
-                ClickedSquare.GetComponent<Collider2D>().enabled = false;
-                ClickedSquare = null;
 
-                PlayerProfile.moves += 1;
-
-            }
-            else
+        if (ClickedFirst != null && ClickedSecond != null)
+        {
+            if (ClickedFirst.tag == "Square" && ClickedSecond.tag == "Circle")
             {
-                ClickedSquare = null;
-                ClickedCircle = null;
+                if (((ClickedSecond.transform.localScale.x + ClickedSecond.transform.localScale.y) / (ClickedFirst.transform.localScale.x + ClickedFirst.transform.localScale.y)) >= 1.4f)
+
+                {
+                    ClickedFirst.transform.position = ClickedSecond.transform.position;
+
+                    ClickedFirst.GetComponent<Collider2D>().enabled = false;
+                    ClickedFirst = null;
+                    ClickedSecond = null;
+
+                    PlayerProfile.moves += 1;
+
+                }
             }
+          
 
         }
     }
